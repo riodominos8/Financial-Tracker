@@ -5,26 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Tracker 2025 - Finners Daily</title>
     
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- jsPDF & AutoTable (Untuk Export PDF) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* --- CSS VARIABLES (TEMA DISESUAIKAN DENGAN LOGO) --- */
+        /* --- CSS VARIABLES (THEME UPDATED: RED, GOLD, BLACK) --- */
         :root {
-            --primary: #FF3D2E;      /* Merah cerah dari Logo */
-            --secondary: #2D2424;    /* Cokelat gelap hangat */
-            --bg-dark: #1A1515;      /* Background utama hampir hitam dengan tint merah */
-            --accent-green: #00E096; /* Warna Pemasukan */
-            --accent-red: #FF3D2E;   /* Warna Pengeluaran sama dengan Logo */
-            --text-main: #FDF5E6;    /* Krem/Off-white dari teks Logo */
-            --text-muted: #A09090;   /* Abu-abu hangat */
-            --border-color: #453838; /* Border kecokelatan halus */
-            --hover-color: #FF574A;  
+            /* Tema Merah Mewah */
+            --primary: #D32F2F; /* Merah Berani */
+            --primary-dark: #B71C1C; /* Merah Gelap untuk hover */
+            
+            /* Tema Emas untuk Aksen */
+            --accent-gold: #FFD700; /* Emas Murni */
+            --accent-gold-dim: #C5A000; /* Emas agak gelap */
+            
+            /* Background Hitam Pekat */
+            --secondary: #121212; /* Abu sangat gelap (hampir hitam) untuk Kartu/Sidebar */
+            --bg-dark: #000000; /* Hitam Pekat untuk Background Utama */
+            
+            --accent-green: #10B981; /* Tetap hijau untuk pemasukan agar intuitif */
+            --accent-red: #FF5252; /* Merah terang untuk indikator pengeluaran */
+            
+            --text-main: #FFFFFF;
+            --text-muted: #B0B0B0;
+            --border-color: #333333; /* Border abu gelap */
+            --hover-color: #B71C1C;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -49,27 +62,27 @@
             z-index: 100;
         }
 
-        /* Modifikasi Brand: Logo di atas, Teks di bawah */
         .brand {
             display: flex;
-            flex-direction: column; 
-            align-items: center;    
-            justify-content: center; 
-            gap: 10px;              
+            align-items: center;
+            gap: 15px; /* Sedikit renggang agar logo besar tidak sesak */
             margin-bottom: 40px;
-            text-align: center;     
+            padding-left: 5px;
         }
-
-        .brand img {
-            width: 100px;           /* Ukuran diperbesar agar proporsional di tengah */
-            height: auto;
-            border-radius: 8px;
+        
+        .brand-logo {
+            width: 70px;  /* Diperbesar dari 40px ke 70px */
+            height: 70px; /* Diperbesar dari 40px ke 70px */
+            object-fit: contain;
+            /* Opsional: filter brightness jika logo Anda gelap */
+            /* filter: brightness(0) invert(1); */ 
         }
 
         .brand h2 { 
-            font-size: 1.2rem; 
+            font-size: 1.1rem; 
             font-weight: 700; 
-            color: var(--text-main); 
+            color: var(--accent-gold); /* Judul Brand warna Emas */
+            letter-spacing: 0.5px;
         }
 
         .menu-list { list-style: none; }
@@ -78,26 +91,34 @@
             align-items: center;
             gap: 15px;
             padding: 12px 15px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: var(--text-muted);
             border-radius: 12px;
             cursor: pointer;
             transition: 0.3s;
             text-decoration: none;
+            font-weight: 500;
+            border: 1px solid transparent;
         }
+        
+        /* Hover & Active State: Merah dengan aksen Emas */
         .menu-item:hover, .menu-item.active {
             background-color: var(--primary);
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 61, 46, 0.3);
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4); /* Shadow Merah */
+            border-left: 3px solid var(--accent-gold); /* Garis Emas di kiri */
         }
-        .menu-item i { width: 20px; text-align: center; }
+        
+        /* Icon active warna Emas */
+        .menu-item.active i { color: var(--accent-gold); }
+        .menu-item i { width: 20px; text-align: center; transition: 0.3s; }
 
         .logout-btn {
             margin-top: auto;
             color: var(--accent-red);
             border: 1px solid var(--border-color);
         }
-        .logout-btn:hover { background: rgba(255, 61, 46, 0.1); color: var(--accent-red); box-shadow: none; }
+        .logout-btn:hover { background: rgba(255, 82, 82, 0.1); color: var(--accent-red); box-shadow: none; border-color: var(--accent-red); }
 
         /* --- MAIN CONTENT AREA --- */
         .main-content {
@@ -106,6 +127,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
+            background-image: radial-gradient(circle at 90% 10%, rgba(211, 47, 47, 0.05) 0%, transparent 40%); /* Efek glow merah tipis */
         }
 
         /* --- TOP HEADER --- */
@@ -116,10 +138,10 @@
             justify-content: space-between;
             align-items: center;
             background-color: transparent; 
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .header-title h1 { font-size: 1.5rem; font-weight: 600; }
+        .header-title h1 { font-size: 1.5rem; font-weight: 600; color: var(--text-main); }
         .header-title p { font-size: 0.85rem; color: var(--text-muted); }
 
         .header-actions { display: flex; align-items: center; gap: 20px; }
@@ -176,15 +198,17 @@
             align-items: center; 
             justify-content: center;
             font-weight: bold;
-            color: white;
+            color: var(--accent-gold); /* Teks avatar Emas */
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        /* --- VIEWS --- */
+        /* --- SHARED VIEW SECTION STYLE --- */
         .view-section {
             padding: 20px 30px;
             overflow-y: auto;
             flex: 1;
-            display: none; 
+            display: none; /* Hidden by default */
             animation: fadeIn 0.3s ease-in-out;
         }
         .view-section.active-view {
@@ -196,6 +220,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- DASHBOARD STYLES --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -209,10 +234,14 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border-color 0.2s;
             border: 1px solid var(--border-color);
         }
-        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--accent-gold); /* Border Emas saat hover */
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.1);
+        }
         
         .icon-box {
             width: 50px; height: 50px;
@@ -220,8 +249,10 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem;
         }
-        .ib-primary { background: rgba(255, 61, 46, 0.2); color: var(--primary); }
-        .ib-green { background: rgba(0, 224, 150, 0.2); color: var(--accent-green); }
+        /* Icon Box Colors Revised */
+        .ib-blue { background: rgba(255, 215, 0, 0.1); color: var(--accent-gold); } /* Emas */
+        .ib-green { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+        .ib-red { background: rgba(255, 82, 82, 0.1); color: var(--accent-red); }
 
         .stat-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; margin-bottom: 5px; }
         .stat-info p { font-size: 1.4rem; font-weight: 600; }
@@ -245,8 +276,17 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border-color);
         }
+        .panel-title { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            color: var(--accent-gold); /* Judul Panel Emas */
+        }
 
-        .transaction-list { max-height: 400px; overflow-y: auto; }
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
         .trx-item {
             display: flex;
             align-items: center;
@@ -254,41 +294,67 @@
             padding: 12px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .trx-item:last-child { border: none; }
+        
+        .trx-left { display: flex; align-items: center; gap: 15px; }
         .cat-icon {
             width: 40px; height: 40px;
-            background: #3d3434;
+            background: rgba(255,255,255,0.05);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             color: var(--text-muted);
         }
+        .trx-details h4 { font-size: 0.95rem; margin-bottom: 2px; }
+        .trx-details span { font-size: 0.75rem; color: var(--text-muted); }
         
+        .trx-right { text-align: right; }
+        .trx-amount { font-weight: 600; font-size: 0.95rem; }
         .text-in { color: var(--accent-green); }
         .text-out { color: var(--accent-red); }
 
+        .btn-delete-mini {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; margin-left: 10px; font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+        .btn-delete-mini:hover { color: var(--accent-red); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
         .form-control {
             width: 100%;
-            background: var(--bg-dark);
+            background: var(--bg-dark); /* Input Background Hitam */
             border: 1px solid var(--border-color);
             padding: 12px;
             border-radius: 10px;
-            color: var(--text-main);
+            color: white;
             outline: none;
-            margin-top: 5px;
+            transition: 0.3s;
+        }
+        .form-control:focus { 
+            border-color: var(--accent-gold); /* Focus Border Emas */
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
         }
         
         .btn-primary {
             width: 100%;
             padding: 12px;
-            background: var(--primary);
+            background: var(--primary); /* Tombol Merah */
             color: white;
             border: none;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
+            border: 1px solid transparent;
         }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-primary:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-2px);
+            border-color: var(--accent-gold); /* Hover Border Emas */
+        }
 
+        /* Export Button Style */
         .btn-export {
             background: var(--secondary);
             border: 1px solid var(--border-color);
@@ -297,32 +363,160 @@
             border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn-export:hover { background: var(--primary); border-color: var(--primary); }
+        .btn-export:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
+        }
 
-        .data-table { width: 100%; border-collapse: collapse; color: var(--text-muted); }
-        .data-table th, .data-table td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .data-table th { color: var(--text-main); }
+        /* --- TABLE STYLES --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-muted);
+        }
+        .data-table th, .data-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            color: var(--accent-gold); /* Header Tabel Emas */
+            font-weight: 600;
+        }
+        .data-table tbody tr:hover {
+            background-color: rgba(211, 47, 47, 0.05); /* Hover row merah tipis */
+        }
 
-        /* ATM CARD THEME */
+        /* --- WALLET CARD STYLE --- */
+        .wallet-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
         .atm-card {
-            width: 350px; height: 210px; border-radius: 20px; padding: 25px;
-            color: white; position: relative; display: flex; flex-direction: column; justify-content: space-between;
+            width: 350px;
+            height: 210px;
+            border-radius: 20px;
+            padding: 25px;
+            color: white;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .card-gradient-1 { background: linear-gradient(135deg, #FF3D2E 0%, #8B1A1A 100%); }
+        .atm-card:hover { transform: translateY(-5px); border-color: var(--accent-gold); }
 
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center;
+        /* Variasi Warna Card - Tema Elegan */
+        /* Red/Gold/Black Variations */
+        .card-gradient-1 { background: linear-gradient(135deg, #B71C1C 0%, #000000 100%); } /* Red to Black */
+        .card-gradient-2 { background: linear-gradient(135deg, #121212 0%, #333333 100%); } /* Dark Metal */
+        .card-gradient-3 { background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); color: #000 !important; } /* Gold (Black text) */
+        .card-gradient-4 { background: linear-gradient(135deg, #800000 0%, #400000 100%); } /* Maroon */
+        
+        /* Khusus text hitam untuk kartu emas */
+        .card-gradient-3 .card-type, 
+        .card-gradient-3 .card-name, 
+        .card-gradient-3 .card-number, 
+        .card-gradient-3 .card-balance span,
+        .card-gradient-3 .card-balance strong,
+        .card-gradient-3 i,
+        .card-gradient-3 button {
+            color: #000000 !important;
+            opacity: 0.8;
         }
-        .modal-content { background-color: var(--secondary); padding: 30px; border-radius: 20px; width: 400px; border: 1px solid var(--border-color); }
+
+        .chip {
+            width: 50px; height: 35px;
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); /* Chip selalu emas */
+            border-radius: 5px;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        .card-top { display: flex; justify-content: space-between; align-items: start; }
+        .card-type { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        
+        .card-body { margin-top: 10px; }
+        .card-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 5px; }
+        .card-number { font-size: 0.9rem; font-family: monospace; letter-spacing: 2px; opacity: 0.7; }
+        
+        .card-balance { text-align: right; }
+        .card-balance span { display: block; font-size: 0.7rem; opacity: 0.8; }
+        .card-balance strong { font-size: 1.4rem; }
+
+        .add-wallet-btn {
+            width: 350px;
+            height: 210px;
+            border-radius: 20px;
+            border: 2px dashed var(--border-color);
+            background: transparent;
+            color: var(--text-muted);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .add-wallet-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(255, 215, 0, 0.05); }
+
+        /* --- MODAL STYLE --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; 
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.9); /* Latar modal sangat gelap */
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--secondary);
+            padding: 30px;
+            border-radius: 20px;
+            width: 400px;
+            border: 1px solid var(--accent-gold); /* Border Modal Emas */
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+        .close-modal {
+            position: absolute; top: 20px; right: 20px;
+            font-size: 1.2rem; cursor: pointer; color: var(--text-muted);
+        }
+        .close-modal:hover { color: var(--accent-gold); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 10px; align-items: center; }
+            .brand { margin-bottom: 0; margin-right: 20px; }
+            .brand h2 { display: none; }
+            .menu-list { display: flex; gap: 10px; }
+            .menu-item span { display: none; }
+            .logout-btn { display: none; }
+            .content-layout { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .header-actions { gap: 10px; }
+            .user-profile span { display: none; }
+            .atm-card, .add-wallet-btn { width: 100%; }
+            .wallet-grid { flex-direction: column; }
+        }
     </style>
 </head>
 <body onload="initApp()">
 
+    <!-- SIDEBAR -->
     <nav class="sidebar">
         <div class="brand">
-            <img src="finners-daily-logo.png" alt="Logo">
+            <!-- REPLACED ICON WITH IMAGE LOGO (UPDATED SIZE TO 70px) -->
+            <img src="finners-daily-logo.png" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/70/D32F2F/FFFFFF?text=F'">
             <h2>FinnersDaily</h2>
         </div>
         <ul class="menu-list">
@@ -349,13 +543,16 @@
         </ul>
     </nav>
 
+    <!-- MAIN CONTENT -->
     <main class="main-content">
+        <!-- HEADER -->
         <header>
             <div class="header-title">
                 <h1 id="pageTitle">Overview</h1>
                 <p>Halo, Selamat datang kembali di Finners Daily!</p>
             </div>
             <div class="header-actions">
+                <!-- REVISED DATE PICKER -->
                 <div class="filter-group">
                     <select id="viewMode" class="custom-selector" onchange="refreshCurrentView()">
                         <option value="monthly">Bulanan</option>
@@ -363,6 +560,7 @@
                     </select>
                     <input type="date" id="overviewDate" class="custom-selector" onchange="refreshCurrentView()">
                 </div>
+
                 <div class="user-profile">
                     <div class="avatar">U</div>
                     <span>Kelompok 4</span>
@@ -370,13 +568,15 @@
             </div>
         </header>
 
+        <!-- === VIEW 1: DASHBOARD === -->
         <div id="dashboard-view" class="view-section active-view">
+            <!-- STATS CARDS -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="icon-box ib-primary"><i class="fa-solid fa-wallet"></i></div>
+                    <div class="icon-box ib-blue"><i class="fa-solid fa-wallet"></i></div>
                     <div class="stat-info">
-                        <h3>Sisa Saldo</h3>
-                        <p id="totalBalance" style="color:var(--primary)">Rp 0</p>
+                        <h3>Sisa Saldo (Semua)</h3>
+                        <p id="totalBalance" style="color:var(--accent-gold)">Rp 0</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -387,7 +587,7 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="icon-box ib-primary"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                    <div class="icon-box ib-red"><i class="fa-solid fa-arrow-trend-down"></i></div>
                     <div class="stat-info">
                         <h3 id="labelExpense">Pengeluaran</h3>
                         <p id="totalExpense" style="color:var(--accent-red)">Rp 0</p>
@@ -395,100 +595,207 @@
                 </div>
             </div>
 
+            <!-- CONTENT SPLIT -->
             <div class="content-layout">
+                <!-- LEFT: LIST & CHART -->
                 <div class="panel">
-                    <div class="panel-header"><span class="panel-title">Riwayat Terkini</span></div>
-                    <ul class="transaction-list" id="trxList"></ul>
+                    <div class="panel-header">
+                        <span class="panel-title">Riwayat Terkini</span>
+                    </div>
+                    <ul class="transaction-list" id="trxList">
+                        <!-- Transaksi akan muncul di sini via JS -->
+                    </ul>
                 </div>
+
+                <!-- RIGHT: ADD FORM & CHART MINI -->
                 <div style="display: flex; flex-direction: column; gap: 20px;">
                     <div class="panel">
-                        <div class="panel-header"><span class="panel-title">Tambah Transaksi</span></div>
+                        <div class="panel-header">
+                            <span class="panel-title">Tambah Transaksi</span>
+                        </div>
                         <form onsubmit="addTransaction(event)">
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:0.8rem;">Tanggal</label>
+                            <div class="input-group">
+                                <label>Tanggal Transaksi</label>
                                 <input type="date" id="tDate" class="form-control" required>
                             </div>
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:0.8rem;">Keterangan</label>
-                                <input type="text" id="tName" class="form-control" placeholder="Makan siang" required>
+
+                            <div class="input-group">
+                                <label>Nama Transaksi</label>
+                                <input type="text" id="tName" class="form-control" placeholder="Contoh: Makan Siang" required>
                             </div>
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:0.8rem;">Nominal (Rp)</label>
+                            
+                            <div class="input-group">
+                                <label>Nominal (Rp)</label>
                                 <input type="number" id="tAmount" class="form-control" placeholder="0" required>
                             </div>
-                            <div style="margin-bottom:10px;">
-                                <label style="font-size:0.8rem;">Wallet</label>
+
+                            <div class="input-group">
+                                <label>Pilih Wallet / Dompet</label>
                                 <select id="tWallet" class="form-control" required></select>
                             </div>
+
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                                <select id="tType" class="form-control" onchange="updateCategoryOptions()">
-                                    <option value="expense">Pengeluaran</option>
-                                    <option value="income">Pemasukan</option>
-                                </select>
-                                <select id="tCategory" class="form-control"></select>
+                                <div>
+                                    <label style="font-size:0.8rem; color:#A0A0B0;">Tipe</label>
+                                    <select id="tType" class="form-control" onchange="updateCategoryOptions()">
+                                        <option value="expense">Pengeluaran</option>
+                                        <option value="income">Pemasukan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size:0.8rem; color:#A0A0B0;">Kategori</label>
+                                    <select id="tCategory" class="form-control"></select>
+                                </div>
                             </div>
-                            <button type="submit" class="btn-primary">Simpan Data</button>
+                            <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Simpan Data</button>
                         </form>
                     </div>
+
                     <div class="panel">
-                        <div class="panel-header"><span class="panel-title">Analisis</span></div>
-                        <div style="height: 180px;"><canvas id="financeChart"></canvas></div>
+                        <div class="panel-header">
+                            <span class="panel-title">Analisis</span>
+                        </div>
+                        <div style="height: 200px; position: relative;">
+                            <canvas id="financeChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- === VIEW 2: TRANSAKSI (TABEL LENGKAP) === -->
         <div id="transaksi-view" class="view-section">
             <div class="panel">
+                <!-- UPDATED PANEL HEADER WITH PDF BUTTON -->
                 <div class="panel-header">
                     <span class="panel-title">Data Transaksi</span>
-                    <button class="btn-export" onclick="openExportModal()"><i class="fa-solid fa-file-pdf"></i> Unduh PDF</button>
+                    <button class="btn-export" onclick="openExportModal()">
+                        <i class="fa-solid fa-file-pdf"></i> Unduh PDF
+                    </button>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr><th>Tanggal</th><th>Keterangan</th><th>Dompet</th><th>Kategori</th><th>Tipe</th><th>Nominal</th><th>Aksi</th></tr>
-                    </thead>
-                    <tbody id="fullTrxTable"></tbody>
-                </table>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>Dompet</th>
+                                <th>Kategori</th>
+                                <th>Tipe</th>
+                                <th>Nominal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullTrxTable">
+                            <!-- Data Table -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- === VIEW 3: LAPORAN (STATISTIK DETAIL) === -->
         <div id="laporan-view" class="view-section">
              <div class="content-layout">
                 <div class="panel">
-                    <div class="panel-header"><span class="panel-title">Pemasukan vs Pengeluaran</span></div>
-                    <div style="height: 300px;"><canvas id="reportChart"></canvas></div>
+                    <div class="panel-header">
+                        <span class="panel-title">Laporan Keuangan</span>
+                    </div>
+                    <div style="padding: 20px; text-align: center;">
+                        <p style="color:var(--text-muted); margin-bottom: 20px;">Distribusi Pemasukan vs Pengeluaran</p>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="reportChart"></canvas>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="panel">
-                    <div class="panel-header"><span class="panel-title">Ringkasan Periode</span></div>
+                    <div class="panel-header">
+                        <span class="panel-title">Ringkasan Periode Ini</span>
+                    </div>
                     <ul style="list-style: none;">
                         <li style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid var(--border-color);">
-                            <span>Total Pemasukan</span><span id="rptIncome" class="text-in">Rp 0</span>
+                            <span style="color:var(--text-muted)">Total Pemasukan</span>
+                            <span style="color:var(--accent-green); font-weight:bold;" id="rptIncome">Rp 0</span>
                         </li>
                         <li style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid var(--border-color);">
-                            <span>Total Pengeluaran</span><span id="rptExpense" class="text-out">Rp 0</span>
+                            <span style="color:var(--text-muted)">Total Pengeluaran</span>
+                            <span style="color:var(--accent-red); font-weight:bold;" id="rptExpense">Rp 0</span>
                         </li>
-                        <li style="display:flex; justify-content:space-between; padding:15px 0;">
-                            <span>Sisa</span><span id="rptBalance" style="font-weight:bold;">Rp 0</span>
+                        <li style="display:flex; justify-content:space-between; padding:15px 0; margin-top: 10px;">
+                            <span style="color:var(--accent-gold)">Surplus / Defisit</span>
+                            <span style="color:var(--text-main); font-weight:bold;" id="rptBalance">Rp 0</span>
                         </li>
                     </ul>
                 </div>
              </div>
         </div>
 
+        <!-- === VIEW 4: WALLET === -->
         <div id="wallet-view" class="view-section">
-            <div class="wallet-grid" id="walletContainer" style="display:flex; gap:20px; flex-wrap:wrap;"></div>
+            <h2 style="margin-bottom: 20px; color: var(--accent-gold);">Dompet & Akun Saya</h2>
+            
+            <div class="wallet-grid" id="walletContainer">
+                <!-- Wallet Cards & Add Button -->
+            </div>
+            
+            <div class="panel" style="margin-top: 30px;">
+                <div class="panel-header">
+                    <span class="panel-title">Informasi Akun</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Kelola berbagai sumber dana Anda di sini. Klik tombol <strong>+</strong> untuk menambahkan dompet atau akun bank baru.
+                </p>
+            </div>
         </div>
 
+        <!-- MODAL ADD WALLET -->
+        <div id="addWalletModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeAddWalletModal()">&times;</span>
+                <h3 style="margin-bottom: 20px; color: var(--accent-gold);">Tambah Dompet Baru</h3>
+                <form onsubmit="createWallet(event)">
+                    <div class="input-group">
+                        <label>Nama Dompet / Bank</label>
+                        <input type="text" id="wName" class="form-control" placeholder="Contoh: BCA, OVO, Dompet Tunai" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Tipe</label>
+                        <select id="wType" class="form-control">
+                            <option value="Cash">Tunai / Cash</option>
+                            <option value="Bank">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="Investment">Investasi</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Saldo Awal (Rp)</label>
+                        <input type="number" id="wBalance" class="form-control" placeholder="0" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Buat Dompet</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- MODAL EXPORT PDF (NEW) -->
         <div id="exportModal" class="modal">
             <div class="modal-content">
-                <span style="float:right; cursor:pointer;" onclick="closeExportModal()">&times;</span>
-                <h3>Ekspor PDF</h3>
-                <div style="margin:15px 0;">
-                    <label>Dari</label><input type="date" id="exportStartDate" class="form-control">
-                    <label>Sampai</label><input type="date" id="exportEndDate" class="form-control">
+                <span class="close-modal" onclick="closeExportModal()">&times;</span>
+                <h3 style="margin-bottom: 20px; color: var(--accent-gold);">Ekspor Laporan PDF</h3>
+                <p style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Pilih rentang tanggal untuk laporan transaksi.</p>
+                
+                <div class="input-group">
+                    <label>Dari Tanggal</label>
+                    <input type="date" id="exportStartDate" class="form-control">
                 </div>
-                <button onclick="executePDFExport()" class="btn-primary">Unduh Sekarang</button>
+                <div class="input-group">
+                    <label>Sampai Tanggal</label>
+                    <input type="date" id="exportEndDate" class="form-control">
+                </div>
+                
+                <button onclick="executePDFExport()" class="btn-primary" style="margin-top:10px;">
+                    <i class="fa-solid fa-file-pdf"></i> Unduh Sekarang
+                </button>
             </div>
         </div>
 
@@ -498,28 +805,78 @@
     </main>
 
     <script>
+        // --- CONFIGURATION ---
         const incomeCats = ['Gaji', 'Bonus', 'Hasil Usaha', 'Investasi', 'Lainnya'];
         const expenseCats = ['Makanan', 'Transport', 'Belanja', 'Tagihan', 'Cicilan', 'Lainnya'];
-        const categoryIcons = { 'Gaji': 'fa-money-bill-wave', 'Bonus': 'fa-gift', 'Makanan': 'fa-utensils', 'Transport': 'fa-bus', 'Belanja': 'fa-cart-shopping' };
-        let transactions = [], wallets = [], dashboardChart, reportChart, activeView = 'dashboard';
+
+        const categoryIcons = {
+            'Gaji': 'fa-money-bill-wave', 'Bonus': 'fa-gift', 'Hasil Usaha': 'fa-shop',
+            'Investasi': 'fa-chart-line', 'Lainnya': 'fa-circle-question', 'Makanan': 'fa-utensils',
+            'Transport': 'fa-bus', 'Belanja': 'fa-cart-shopping', 'Tagihan': 'fa-file-invoice',
+            'Cicilan': 'fa-credit-card'
+        };
+
+        let transactions = [];
+        let wallets = [];
+        let dashboardChart;
+        let reportChart;
+        let activeView = 'dashboard';
+
+        // --- CORE FUNCTIONS ---
 
         function initApp() {
+            // Load Transactions
             transactions = JSON.parse(localStorage.getItem('fin_tracker_2025_v2')) || [];
+            
+            // Load Wallets (Initialize Default if empty)
             wallets = JSON.parse(localStorage.getItem('fin_tracker_wallets_v2')) || [];
-            if(wallets.length === 0) { wallets.push({ id: Date.now(), name: "Main Wallet", type: "Cash", initialBalance: 0, style: 1 }); saveWallets(); }
+            if(wallets.length === 0) {
+                wallets.push({
+                    id: Date.now(),
+                    name: "Main Wallet",
+                    type: "Cash",
+                    initialBalance: 0,
+                    style: 1
+                });
+                saveWallets();
+            }
+
+            // Set Inputs to Today's Date
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('tDate').value = today;
             document.getElementById('overviewDate').value = today;
-            updateCategoryOptions(); updateWalletOptions(); initCharts(); renderDashboard();
+
+            updateCategoryOptions();
+            updateWalletOptions();
+            initCharts();
+            renderDashboard(); // Default view
         }
 
-        function switchMenu(el, name) {
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.view-section').forEach(v => { v.classList.remove('active-view'); v.style.display = 'none'; });
-            document.getElementById(name + '-view').style.display = 'block';
-            document.getElementById(name + '-view').classList.add('active-view');
-            activeView = name; document.getElementById('pageTitle').innerText = name.toUpperCase(); refreshCurrentView();
+        // --- NAVIGATION LOGIC ---
+        function switchMenu(element, menuName) {
+            document.querySelectorAll('.menu-list .menu-item:not(.logout-btn)').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active-view');
+                el.style.display = 'none';
+            });
+            
+            const target = document.getElementById(menuName + '-view');
+            if(target) {
+                target.style.display = 'block';
+                target.classList.add('active-view');
+                activeView = menuName;
+                refreshCurrentView();
+            }
+
+            const titles = {
+                'dashboard': 'Overview',
+                'transaksi': 'Riwayat Transaksi',
+                'laporan': 'Laporan Analisis',
+                'wallet': 'My Wallet'
+            };
+            document.getElementById('pageTitle').innerText = titles[menuName] || 'Dashboard';
         }
 
         function refreshCurrentView() {
@@ -529,70 +886,523 @@
             if(activeView === 'wallet') renderWalletView();
         }
 
+        // --- FILTER HELPERS ---
         function getFilteredTransactions() {
             const mode = document.getElementById('viewMode').value;
             const dateVal = document.getElementById('overviewDate').value;
+
             if(!dateVal) return [];
-            const d = new Date(dateVal);
+
+            const dateObj = new Date(dateVal);
+            const selMonth = dateObj.getMonth();
+            const selYear = dateObj.getFullYear();
+
             return transactions.filter(t => {
-                const td = new Date(t.date);
-                return mode === 'daily' ? t.date === dateVal : td.getMonth() === d.getMonth() && td.getFullYear() === d.getFullYear();
+                const tDate = new Date(t.date);
+                if (mode === 'daily') {
+                    // Filter exact date
+                    return t.date === dateVal;
+                } else {
+                    // Filter by Month & Year
+                    return tDate.getMonth() === selMonth && tDate.getFullYear() === selYear;
+                }
             });
         }
+
+        // --- EXPORT PDF LOGIC (REVISED) ---
+        
+        function openExportModal() {
+            // Set default dates: 1st of current month to Today
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            const formatDateInput = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            document.getElementById('exportStartDate').value = formatDateInput(firstDay);
+            document.getElementById('exportEndDate').value = formatDateInput(now);
+            document.getElementById('exportModal').style.display = 'flex';
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+
+        async function executePDFExport() {
+            // 1. Cek Library
+            if (!window.jspdf) {
+                alert("Library PDF belum dimuat. Silakan refresh halaman.");
+                return;
+            }
+
+            const startDate = document.getElementById('exportStartDate').value;
+            const endDate = document.getElementById('exportEndDate').value;
+
+            if (!startDate || !endDate) {
+                alert("Harap pilih tanggal awal dan akhir.");
+                return;
+            }
+            if (startDate > endDate) {
+                alert("Tanggal awal tidak boleh lebih besar dari tanggal akhir.");
+                return;
+            }
+
+            // 2. Filter Data Berdasarkan Range Tanggal
+            const data = transactions.filter(t => {
+                return t.date >= startDate && t.date <= endDate;
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (data.length === 0) {
+                alert("Tidak ada data transaksi pada rentang tanggal tersebut.");
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Judul & Header PDF
+                doc.setFontSize(18);
+                doc.setTextColor(211, 47, 47); // Judul Merah
+                doc.text("Laporan Keuangan - Finners Daily", 14, 22);
+
+                const dStart = new Date(startDate).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+                const dEnd = new Date(endDate).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+                const subTitle = `Periode: ${dStart} - ${dEnd}`;
+
+                doc.setFontSize(11);
+                doc.setTextColor(50);
+                doc.text(subTitle, 14, 30);
+                doc.setFontSize(10);
+                doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 36);
+
+                // Hitung Total untuk Footer
+                let totalIn = 0;
+                let totalOut = 0;
+
+                // Siapkan Data Body Tabel
+                const tableBody = data.map(t => {
+                    if (t.type === 'income') totalIn += t.amount;
+                    else totalOut += t.amount;
+
+                    const walletName = wallets.find(w => w.id == t.walletId)?.name || 'N/A';
+
+                    return [
+                        new Date(t.date).toLocaleDateString('id-ID'),
+                        t.name,
+                        walletName,
+                        t.category,
+                        t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                        formatRupiah(t.amount)
+                    ];
+                });
+
+                // Generate Tabel
+                doc.autoTable({
+                    head: [['Tanggal', 'Keterangan', 'Dompet', 'Kategori', 'Tipe', 'Nominal']],
+                    body: tableBody,
+                    startY: 45,
+                    theme: 'grid',
+                    styles: { 
+                        fontSize: 9, 
+                        cellPadding: 3,
+                        valign: 'middle'
+                    },
+                    headStyles: { 
+                        fillColor: [211, 47, 47], // Header Tabel Merah
+                        textColor: 255, 
+                        fontStyle: 'bold' 
+                    },
+                    columnStyles: {
+                        5: { halign: 'right' } // Kolom Nominal rata kanan
+                    },
+                    foot: [
+                        ['', '', '', '', 'Total Pemasukan', formatRupiah(totalIn)],
+                        ['', '', '', '', 'Total Pengeluaran', formatRupiah(totalOut)],
+                        ['', '', '', '', 'Sisa Saldo', formatRupiah(totalIn - totalOut)]
+                    ],
+                    footStyles: {
+                        fillColor: [240, 240, 240],
+                        textColor: 50,
+                        fontStyle: 'bold',
+                        halign: 'right'
+                    }
+                });
+
+                // Simpan File
+                const fileName = `Laporan_FinnersDaily_${startDate}_to_${endDate}.pdf`;
+                doc.save(fileName);
+                
+                closeExportModal(); // Tutup modal setelah sukses
+                
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat membuat PDF: " + error.message);
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
 
         function renderDashboard() {
-            const data = getFilteredTransactions();
-            let tin = 0, tout = 0, chartData = {};
-            const list = document.getElementById('trxList'); list.innerHTML = '';
-            data.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
-                if(t.type === 'income') tin += t.amount; else tout += t.amount;
-                chartData[t.category] = (chartData[t.category] || 0) + t.amount;
-                const li = document.createElement('li'); li.className = 'trx-item';
-                li.innerHTML = `<div style="display:flex; gap:10px;"><div class="cat-icon"><i class="fa-solid ${categoryIcons[t.category] || 'fa-tag'}"></i></div>
-                                <div><h4>${t.name}</h4><small>${t.category}</small></div></div>
-                                <div class="${t.type === 'income' ? 'text-in' : 'text-out'}">${t.type === 'income' ? '+' : '-'} ${formatRupiah(t.amount)}</div>`;
-                list.appendChild(li);
+            const dataFiltered = getFilteredTransactions();
+            const mode = document.getElementById('viewMode').value;
+
+            let totIn = 0, totOut = 0;
+            const listEl = document.getElementById('trxList');
+            listEl.innerHTML = '';
+            let chartDataTracker = {};
+
+            // Sort newest first
+            const sortedData = [...dataFiltered].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedData.forEach(t => {
+                if(t.type === 'income') totIn += t.amount;
+                else totOut += t.amount;
+
+                if (!chartDataTracker[t.category]) chartDataTracker[t.category] = 0;
+                chartDataTracker[t.category] += t.amount;
+
+                // Render List
+                const li = document.createElement('li');
+                li.className = 'trx-item';
+                const iconClass = categoryIcons[t.category] || 'fa-circle';
+                const colorClass = t.type === 'income' ? 'text-in' : 'text-out';
+                const sign = t.type === 'income' ? '+' : '-';
+                
+                const w = wallets.find(w => w.id == t.walletId);
+                const wName = w ? w.name : 'Unknown';
+
+                li.innerHTML = `
+                    <div class="trx-left">
+                        <div class="cat-icon"><i class="fa-solid ${iconClass}"></i></div>
+                        <div class="trx-details">
+                            <h4>${t.name} <span style="font-size:0.7rem; font-weight:normal; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-left:5px;">${wName}</span></h4>
+                            <span>${new Date(t.date).toLocaleDateString('id-ID', {day:'numeric', month:'short'})} • ${t.category}</span>
+                        </div>
+                    </div>
+                    <div class="trx-right">
+                        <div class="trx-amount ${colorClass}">${sign} ${formatRupiah(t.amount)}</div>
+                    </div>
+                `;
+                listEl.appendChild(li);
             });
-            document.getElementById('totalIncome').innerText = formatRupiah(tin);
-            document.getElementById('totalExpense').innerText = formatRupiah(tout);
-            let bal = 0; wallets.forEach(w => { let b = w.initialBalance; transactions.forEach(t => { if(t.walletId == w.id) b += (t.type === 'income' ? t.amount : -t.amount); }); bal += b; });
-            document.getElementById('totalBalance').innerText = formatRupiah(bal);
-            updateDashboardChart(chartData);
+
+            if(sortedData.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.5;">Belum ada data pada periode ini.</div>';
+            }
+
+            // Calculate Global Balance (All time)
+            let globalBalance = 0;
+            wallets.forEach(w => {
+                globalBalance += getWalletBalance(w.id);
+            });
+
+            // Update Cards Text
+            const labelSuffix = mode === 'daily' ? '(Hari Ini)' : '(Bulan Ini)';
+            document.getElementById('labelIncome').innerText = `Pemasukan ${labelSuffix}`;
+            document.getElementById('labelExpense').innerText = `Pengeluaran ${labelSuffix}`;
+
+            document.getElementById('totalIncome').innerText = formatRupiah(totIn);
+            document.getElementById('totalExpense').innerText = formatRupiah(totOut);
+            document.getElementById('totalBalance').innerText = formatRupiah(globalBalance);
+
+            updateDashboardChart(chartDataTracker);
         }
 
-        function formatRupiah(n) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n); }
-        function saveWallets() { localStorage.setItem('fin_tracker_wallets_v2', JSON.stringify(wallets)); }
-        function saveData() { localStorage.setItem('fin_tracker_2025_v2', JSON.stringify(transactions)); }
-        function updateCategoryOptions() { const type = document.getElementById('tType').value; const sel = document.getElementById('tCategory'); sel.innerHTML = ''; (type === 'income' ? incomeCats : expenseCats).forEach(c => { let o = document.createElement('option'); o.value = c; o.innerText = c; sel.appendChild(o); }); }
-        function updateWalletOptions() { const sel = document.getElementById('tWallet'); sel.innerHTML = ''; wallets.forEach(w => { let o = document.createElement('option'); o.value = w.id; o.innerText = w.name; sel.appendChild(o); }); }
-        function addTransaction(e) { e.preventDefault(); transactions.push({ id: Date.now(), date: document.getElementById('tDate').value, name: document.getElementById('tName').value, amount: parseFloat(document.getElementById('tAmount').value), type: document.getElementById('tType').value, category: document.getElementById('tCategory').value, walletId: document.getElementById('tWallet').value }); saveData(); refreshCurrentView(); }
-        function resetData() { if(confirm('Hapus semua?')) { localStorage.clear(); location.reload(); } }
-        function openExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
-        function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
-        
-        function initCharts() {
-            dashboardChart = new Chart(document.getElementById('financeChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#FF3D2E', '#00E096', '#FFB84D'] }] }, options: { plugins: { legend: { display: false } } } });
-            reportChart = new Chart(document.getElementById('reportChart'), { type: 'bar', data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [0, 0], backgroundColor: ['#00E096', '#FF3D2E'] }] }, options: { plugins: { legend: { display: false } } } });
-        }
-        function updateDashboardChart(d) { dashboardChart.data.labels = Object.keys(d); dashboardChart.data.datasets[0].data = Object.values(d); dashboardChart.update(); }
-        
         function renderTransactionTable() {
-            const tbody = document.getElementById('fullTrxTable'); tbody.innerHTML = '';
-            getFilteredTransactions().forEach(t => {
+            const data = getFilteredTransactions().sort((a, b) => new Date(b.date) - new Date(a.date));
+            const tbody = document.getElementById('fullTrxTable');
+            tbody.innerHTML = '';
+
+            data.forEach(t => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${t.date}</td><td>${t.name}</td><td>${wallets.find(w=>w.id==t.walletId)?.name || '-'}</td><td>${t.category}</td><td>${t.type}</td><td class="${t.type==='income'?'text-in':'text-out'}">${formatRupiah(t.amount)}</td><td><button onclick="delTrx(${t.id})">x</button></td>`;
+                const colorClass = t.type === 'income' ? 'text-in' : 'text-out';
+                const sign = t.type === 'income' ? '+' : '-';
+                const w = wallets.find(w => w.id == t.walletId);
+                
+                tr.innerHTML = `
+                    <td>${new Date(t.date).toLocaleDateString('id-ID')}</td>
+                    <td>${t.name}</td>
+                    <td>${w ? w.name : '-'}</td>
+                    <td><span style="background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:5px; font-size:0.8rem;">${t.category}</span></td>
+                    <td style="text-transform:capitalize;">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
+                    <td class="${colorClass}"><strong>${sign} ${formatRupiah(t.amount)}</strong></td>
+                    <td>
+                        <button class="btn-delete-mini" onclick="delTrx(${t.id})" style="color:#FF4D4D; font-size:1rem;">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
+
+            if(data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">Tidak ada transaksi di periode ini.</td></tr>';
+            }
         }
-        function delTrx(id) { transactions = transactions.filter(t => t.id !== id); saveData(); refreshCurrentView(); }
+
+        function renderReportView() {
+            const data = getFilteredTransactions();
+            let totIn = 0, totOut = 0;
+
+            data.forEach(t => {
+                if(t.type === 'income') totIn += t.amount;
+                else totOut += t.amount;
+            });
+
+            document.getElementById('rptIncome').innerText = formatRupiah(totIn);
+            document.getElementById('rptExpense').innerText = formatRupiah(totOut);
+            document.getElementById('rptBalance').innerText = formatRupiah(totIn - totOut);
+
+            reportChart.data.datasets[0].data = [totIn, totOut];
+            reportChart.update();
+        }
+
         function renderWalletView() {
-            const cont = document.getElementById('walletContainer'); cont.innerHTML = '';
+            const container = document.getElementById('walletContainer');
+            // Add Button HTML
+            const btnHtml = `
+                <button class="add-wallet-btn" onclick="openAddWalletModal()">
+                    <i class="fa-solid fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                    <span>Tambah Dompet Baru</span>
+                </button>
+            `;
+            
+            container.innerHTML = '';
+
             wallets.forEach(w => {
-                const div = document.createElement('div'); div.className = 'atm-card card-gradient-1';
-                div.innerHTML = `<div>${w.type}</div><div style="font-size:1.5rem;">${w.name}</div><div>${formatRupiah(w.initialBalance)}</div>`;
-                cont.appendChild(div);
+                const currentBal = getWalletBalance(w.id);
+                const cardDiv = document.createElement('div');
+                cardDiv.className = `atm-card card-gradient-${w.style || 1}`;
+                cardDiv.innerHTML = `
+                    <div class="card-top">
+                        <div class="chip"></div>
+                        <div class="card-type">${w.type}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-name">${w.name}</div>
+                        <div class="card-number">**** **** **** ${w.id.toString().slice(-4)}</div>
+                    </div>
+                    <div class="card-balance">
+                        <span>Saldo Aktif</span>
+                        <strong>${formatRupiah(currentBal)}</strong>
+                    </div>
+                    <i class="fa-brands fa-cc-visa" style="position: absolute; top: 25px; right: 25px; font-size: 2rem; opacity: 0.5;"></i>
+                    <button onclick="deleteWallet(${w.id})" style="position:absolute; bottom:25px; left:25px; background:transparent; border:none; color:white; opacity:0.5; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                `;
+                container.appendChild(cardDiv);
+            });
+            
+            container.innerHTML += btnHtml;
+        }
+
+        // --- HELPER LOGIC ---
+
+        function getWalletBalance(walletId) {
+            const w = wallets.find(x => x.id == walletId);
+            if(!w) return 0;
+            
+            let bal = parseFloat(w.initialBalance) || 0;
+            
+            transactions.forEach(t => {
+                if(t.walletId == walletId) {
+                    if(t.type === 'income') bal += t.amount;
+                    else bal -= t.amount;
+                }
+            });
+            return bal;
+        }
+
+        function createWallet(e) {
+            e.preventDefault();
+            const name = document.getElementById('wName').value;
+            const type = document.getElementById('wType').value;
+            const bal = parseFloat(document.getElementById('wBalance').value);
+            
+            if(name) {
+                const newWallet = {
+                    id: Date.now(),
+                    name: name,
+                    type: type,
+                    initialBalance: bal,
+                    style: (wallets.length % 4) + 1 // Rotate colors 1-4
+                };
+                wallets.push(newWallet);
+                saveWallets();
+                closeAddWalletModal();
+                updateWalletOptions();
+                refreshCurrentView();
+                document.getElementById('wName').value = '';
+                document.getElementById('wBalance').value = '';
+            }
+        }
+
+        function deleteWallet(id) {
+            if(confirm('Hapus dompet ini? Transaksi terkait dompet ini akan tetap ada namun tanpa label dompet.')) {
+                wallets = wallets.filter(w => w.id !== id);
+                saveWallets();
+                refreshCurrentView();
+                updateWalletOptions();
+            }
+        }
+
+        function openAddWalletModal() { document.getElementById('addWalletModal').style.display = 'flex'; }
+        function closeAddWalletModal() { document.getElementById('addWalletModal').style.display = 'none'; }
+
+        // --- CHART & UTILS ---
+
+        function initCharts() {
+            const ctxD = document.getElementById('financeChart').getContext('2d');
+            dashboardChart = new Chart(ctxD, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        // Updated to Red/Gold/Dark Theme Colors
+                        backgroundColor: ['#D32F2F', '#FFD700', '#B71C1C', '#FFA000', '#F44336', '#FFECB3'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 10, color: '#B0B0B0' } } },
+                    cutout: '70%'
+                }
+            });
+
+            const ctxR = document.getElementById('reportChart').getContext('2d');
+            reportChart = new Chart(ctxR, {
+                type: 'bar',
+                data: {
+                    labels: ['Pemasukan', 'Pengeluaran'],
+                    datasets: [{
+                        label: 'Total (Rp)',
+                        data: [0, 0],
+                        backgroundColor: ['#10B981', '#FF5252'], // Emerald & Red
+                        borderRadius: 10,
+                        barThickness: 50
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#2A2A40' }, ticks: { color: '#B0B0B0' } },
+                        x: { grid: { display: false }, ticks: { color: '#FFFFFF' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
             });
         }
+
+        function updateDashboardChart(tracker) {
+            const labels = Object.keys(tracker);
+            const data = Object.values(tracker);
+
+            if(data.length === 0) {
+                dashboardChart.data.labels = ['Empty'];
+                dashboardChart.data.datasets[0].data = [1];
+                dashboardChart.data.datasets[0].backgroundColor = ['#2A2A40'];
+            } else {
+                dashboardChart.data.labels = labels;
+                dashboardChart.data.datasets[0].data = data;
+                // Consistent Colors
+                dashboardChart.data.datasets[0].backgroundColor = ['#D32F2F', '#FFD700', '#B71C1C', '#FFA000', '#F44336', '#FFECB3'];
+            }
+            dashboardChart.update();
+        }
+
+        function formatRupiah(n) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+        }
+
+        function updateCategoryOptions() {
+            const type = document.getElementById('tType').value;
+            const catSelect = document.getElementById('tCategory');
+            catSelect.innerHTML = ''; 
+            (type === 'income' ? incomeCats : expenseCats).forEach(cat => {
+                let opt = document.createElement('option');
+                opt.value = cat;
+                opt.innerText = cat;
+                catSelect.appendChild(opt);
+            });
+        }
+
+        function updateWalletOptions() {
+            const wSelect = document.getElementById('tWallet');
+            wSelect.innerHTML = '';
+            wallets.forEach(w => {
+                let opt = document.createElement('option');
+                opt.value = w.id;
+                opt.innerText = w.name;
+                wSelect.appendChild(opt);
+            });
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const date = document.getElementById('tDate').value;
+            const name = document.getElementById('tName').value;
+            const amount = parseFloat(document.getElementById('tAmount').value);
+            const type = document.getElementById('tType').value;
+            const category = document.getElementById('tCategory').value;
+            const walletId = document.getElementById('tWallet').value;
+
+            if(name && amount > 0 && date && walletId) {
+                transactions.push({ 
+                    id: Date.now(), 
+                    date: date, 
+                    name, 
+                    amount, 
+                    type, 
+                    category,
+                    walletId
+                });
+                saveData();
+                
+                // Clear Form
+                document.getElementById('tName').value = '';
+                document.getElementById('tAmount').value = '';
+                
+                refreshCurrentView(); 
+                alert("Transaksi berhasil disimpan!");
+            } else {
+                alert("Mohon lengkapi semua data valid.");
+            }
+        }
+
+        function delTrx(id) {
+            if(confirm('Hapus transaksi ini?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+                refreshCurrentView();
+            }
+        }
+
+        function resetData() {
+            if(confirm('Hapus SEMUA data? Ini tidak bisa dibatalkan.')) {
+                transactions = [];
+                wallets = [];
+                localStorage.removeItem('fin_tracker_2025_v2');
+                localStorage.removeItem('fin_tracker_wallets_v2');
+                location.reload();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('fin_tracker_2025_v2', JSON.stringify(transactions));
+        }
+        
+        function saveWallets() {
+            localStorage.setItem('fin_tracker_wallets_v2', JSON.stringify(wallets));
+        }
+
     </script>
 </body>
 </html>
